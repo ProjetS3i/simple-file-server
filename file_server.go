@@ -35,6 +35,14 @@ func startFileServer() {
 
 func fileServer(w http.ResponseWriter, r *http.Request) {
 	logrus.Infof("File %s. uri=%s", r.Method, r.RequestURI)
+
+
+	//enable CORS for all requests
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Cache-Control, If-Match, If-None-Match")
+	w.Header().Set("Access-Control-Expose-Headers", "Location, ETag, Last-Modified")
+
 	//handle file GET
 	if r.Method == "GET" {
 		if !checkAuthBearer(r, opt.readSharedKey) {
@@ -243,6 +251,7 @@ func fileServer(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.WriteHeader(http.StatusOK)
 		}
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Write([]byte(fileLocation))
 		return
 
@@ -288,8 +297,13 @@ func fileServer(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.WriteHeader(200)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Type", "text/plain")
 		w.Write([]byte("File removed"))
+		return
+	} else if (r.Method == "OPTIONS") {
+		//MAKE SURE TO HANDLE OPTIONS REQUESTS
+		w.WriteHeader(200)
 		return
 	}
 
